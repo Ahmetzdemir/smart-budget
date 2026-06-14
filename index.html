@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Budget - Kişisel Bütçe & Gider Takibi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <!-- Background glows -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <header class="app-header">
+        <a href="../index.html" class="back-link">
+            <i data-lucide="arrow-left"></i> Portfolyo Hub
+        </a>
+        <div class="logo-text">
+            <h2>Smart Budget</h2>
+            <span>Kişisel Bütçe & Harcama Görselleştirici</span>
+        </div>
+        <button id="theme-toggle" class="btn-icon">
+            <i data-lucide="sun"></i>
+        </button>
+    </header>
+
+    <main class="main-container">
+        <!-- TOP: Summary Widgets -->
+        <section class="summary-section">
+            <!-- Balance Card -->
+            <div class="glass-panel summary-card balance-card">
+                <div class="card-icon"><i data-lucide="wallet"></i></div>
+                <div class="card-info">
+                    <span class="card-label">Toplam Kasa Hesabı</span>
+                    <h2 id="total-balance">₺0.00</h2>
+                </div>
+            </div>
+
+            <!-- Income Card -->
+            <div class="glass-panel summary-card income-card">
+                <div class="card-icon"><i data-lucide="trending-up"></i></div>
+                <div class="card-info">
+                    <span class="card-label">Aylık Toplam Gelir</span>
+                    <h2 id="total-income">₺0.00</h2>
+                </div>
+            </div>
+
+            <!-- Expense Card -->
+            <div class="glass-panel summary-card expense-card">
+                <div class="card-icon"><i data-lucide="trending-down"></i></div>
+                <div class="card-info">
+                    <span class="card-label">Aylık Toplam Gider</span>
+                    <h2 id="total-expenses">₺0.00</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- MIDDLE: Budget limit indicator -->
+        <section class="budget-limit-section glass-panel">
+            <div class="limit-header">
+                <div>
+                    <h3><i data-lucide="shield-alert"></i> Aylık Harcama Limiti</h3>
+                    <p class="limit-desc">Belirlediğiniz bütçe sınırına göre anlık doluluk durumu.</p>
+                </div>
+                <div class="limit-config">
+                    <span id="limit-text">Limit: ₺10,000</span>
+                    <button id="edit-limit-btn" class="btn-icon-sm" title="Limiti Düzenle"><i data-lucide="edit-3"></i></button>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="budget-progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="limit-footer">
+                <span id="budget-percentage">0% Kullanıldı</span>
+                <span id="budget-status-text">Limit aşımı yok.</span>
+            </div>
+
+            <!-- Hidden Inline Limit Editor -->
+            <div id="limit-editor-panel" class="limit-editor" style="display: none;">
+                <input type="number" id="limit-input" placeholder="Yeni limit girin (₺)">
+                <button id="save-limit-btn" class="btn btn-primary btn-sm">Kaydet</button>
+                <button id="cancel-limit-btn" class="btn btn-secondary btn-sm">İptal</button>
+            </div>
+        </section>
+
+        <!-- BOTTOM: 2-Column Content -->
+        <div class="bottom-grid">
+            <!-- Left Column: Add Transaction & Category Chart -->
+            <div class="dashboard-left">
+                <!-- Transaction Form -->
+                <div class="glass-panel form-panel">
+                    <h3><i data-lucide="plus-circle"></i> Yeni İşlem Ekle</h3>
+                    <form id="transaction-form">
+                        <div class="form-row">
+                            <div class="form-group type-selector">
+                                <label class="radio-label">
+                                    <input type="radio" name="tx-type" value="income" checked>
+                                    <span class="radio-btn radio-income"><i data-lucide="arrow-up-right"></i> Gelir</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="tx-type" value="expense">
+                                    <span class="radio-btn radio-expense"><i data-lucide="arrow-down-left"></i> Gider</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tx-title">İşlem Açıklaması</label>
+                            <input type="text" id="tx-title" placeholder="Örn: Market alışverişi, Maaş" required>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="tx-amount">Miktar (₺)</label>
+                                <input type="number" id="tx-amount" min="0.01" step="0.01" placeholder="0.00" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tx-category">Kategori</label>
+                                <select id="tx-category" required>
+                                    <!-- Options populated by JS based on type -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tx-date">Tarih</label>
+                            <input type="date" id="tx-date" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full"><i data-lucide="plus"></i> İşlem Kaydet</button>
+                    </form>
+                </div>
+
+                <!-- Expense Donut Chart -->
+                <div class="glass-panel chart-panel">
+                    <h3><i data-lucide="pie-chart"></i> Kategori Dağılımı (Giderler)</h3>
+                    <div class="chart-content">
+                        <div class="donut-chart-container">
+                            <svg class="donut-svg" width="180" height="180" viewBox="0 0 42 42">
+                                <circle class="donut-hole" cx="21" cy="21" r="15.915" fill="transparent"></circle>
+                                <circle class="donut-ring" cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(255,255,255,0.05)" stroke-width="4.2"></circle>
+                                <!-- Dynamic donut segments added here by JS -->
+                                <g id="donut-segments-group"></g>
+                            </svg>
+                            <div class="donut-text">
+                                <span class="donut-total-label">Gider</span>
+                                <span id="donut-total-val">₺0</span>
+                            </div>
+                        </div>
+                        <div class="chart-legend" id="chart-legend-list">
+                            <!-- Dynamic legend list items -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Transaction History -->
+            <div class="glass-panel history-panel">
+                <div class="history-header">
+                    <h3><i data-lucide="list"></i> İşlem Geçmişi</h3>
+                    
+                    <!-- Search & Filter Controls -->
+                    <div class="search-filter-controls">
+                        <div class="search-box">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="search-input" placeholder="İşlemlerde ara...">
+                        </div>
+                        <select id="filter-type-select">
+                            <option value="all">Tüm Tipler</option>
+                            <option value="income">Sadece Gelirler</option>
+                            <option value="expense">Sadece Giderler</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="history-list-wrapper">
+                    <ul class="transaction-list" id="transaction-list-element">
+                        <!-- Transactions populated by JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
